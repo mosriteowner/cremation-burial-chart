@@ -30,7 +30,7 @@ const BLUE='#2a78d6', ORANGE='#eb6834', SURF='#fcfcfb', GRID='#e6e5e1', AXIS='#b
 // Cremation Society: US cremation % of deaths, 1995-2024
 const CS=[21.14,21.31,23.60,23.75,25.39,26.24,26.90,27.81,28.71,30.88,32.28,33.61,34.89,36.02,38.15,40.62,42.10,43.27,45.18,46.72,48.67,50.25,51.55,53.09,54.56,56.10,57.53,58.97,60.63,61.83].map((v,i)=>[1995+i,v]);
 // NFDA 2024 report: [year, burial %, cremation %, projection?]
-const NF=[[2005,61.4,32.3],[2010,53.3,40.4],[2015,45.2,47.9],[2020,38.8,56.1],[2022,35.9,59.2],[2024,33.2,61.9,1]];
+const NF=[[2005,61.4,32.3],[2010,53.3,40.4],[2015,45.2,47.9],[2020,38.8,56.1],[2022,35.9,59.2]];
 
 const m={l:84,r:230,t:128,b:566}, x0=1995,x1=2024;
 const X=y=>m.l+(y-x0)/(x1-x0)*(1200-m.l-m.r), Y=v=>m.b-(v/100)*(m.b-m.t);
@@ -43,7 +43,6 @@ const lg=(x,y,draw,txt)=>{draw(x,y);el('text',{x:x+34,y:y+5,class:'s'},svg,txt);
 lg(48,108,(x,y)=>{el('line',{x1:x,x2:x+26,y1:y,y2:y,stroke:BLUE,'stroke-width':2.5},svg);el('circle',{cx:x+13,cy:y,r:3.5,fill:BLUE},svg);},'火葬：Cremation Society（年次）');
 lg(350,108,(x,y)=>{el('rect',{x:x+6,y:y-6,width:12,height:12,fill:BLUE,stroke:SURF,'stroke-width':2,transform:`rotate(45 ${x+12} ${y})`},svg);},'火葬：NFDA（実績）');
 lg(540,108,(x,y)=>{el('line',{x1:x,x2:x+26,y1:y,y2:y,stroke:ORANGE,'stroke-width':2.5},svg);el('circle',{cx:x+13,cy:y,r:4,fill:ORANGE,stroke:SURF,'stroke-width':2},svg);},'土葬：NFDA（実績）');
-lg(780,108,(x,y)=>{el('circle',{cx:x+13,cy:y,r:4.5,fill:SURF,stroke:'#52514e','stroke-width':2},svg);},'2024年はNFDAの推計（白抜き）');
 
 // grid
 for(let v=0;v<=100;v+=20){
@@ -65,8 +64,6 @@ CS.forEach(p=>el('circle',{cx:X(p[0]),cy:Y(p[1]),r:3,fill:BLUE},svg));
 // NFDA burial line (actuals), then projection segment dashed
 const act=NF.filter(r=>!r[3]);
 for(let i=1;i<act.length;i++) el('line',{x1:X(act[i-1][0]),y1:Y(act[i-1][1]),x2:X(act[i][0]),y2:Y(act[i][1]),stroke:ORANGE,'stroke-width':2.5,'stroke-linecap':'round'},svg);
-const pj=NF[NF.length-1], la=act[act.length-1];
-el('line',{x1:X(la[0]),y1:Y(la[1]),x2:X(pj[0]),y2:Y(pj[1]),stroke:ORANGE,'stroke-width':2.5,'stroke-dasharray':'5 4'},svg);
 NF.forEach(r=>{
   const p=!!r[3];
   el('circle',{cx:X(r[0]),cy:Y(r[1]),r:5,fill:p?SURF:ORANGE,stroke:p?ORANGE:SURF,'stroke-width':2.2},svg);
@@ -84,7 +81,6 @@ lab(X(2022)+2,Y(35.9)+28,'土葬 35.9%','middle','b');
 // end labels
 lab(X(2024)+14,Y(61.83)-4,'火葬 61.8%','start','b');
 lab(X(2024)+14,Y(61.83)+14,'（Cremation Society 2024）','start','f');
-lab(X(2024)+14,Y(33.2)+6,'土葬 33.2%（推計）','start','b');
 lab(X(1995)+4,Y(21.14)-16,'1995年 21.1%','start');
 
 // annotation
@@ -95,7 +91,7 @@ lab(m.l+6,Y(50)-8,'50%','start','f');
 // footer
 const foot=['出典：NFDA「2024 Cremation & Burial Report」（実績は2022年まで）',
  '　　　　The Cremation Society of Great Britain「International Statistics」（1995〜2024年）',
- '※NFDAは火葬・土葬の割合（その他は約5%で別枠）。Cremation Societyは全死亡数に対する火葬の割合。比較できる6時点で火葬率の差は1ポイント以内。'];
+ '※NFDAは火葬・土葬の割合（その他は約5%で別枠）。Cremation Societyは全死亡数に対する火葬の割合。比較できる5時点（2005〜2022年）で火葬率の差は1ポイント以内。'];
 foot.forEach((t,i)=>el('text',{x:48,y:626+i*19,class:'f'},svg,t));
 </script>
 <h2>数値表</h2>
@@ -103,10 +99,10 @@ foot.forEach((t,i)=>el('text',{x:48,y:626+i*19,class:'f'},svg,t));
 
 <h2>注記</h2>
 <ul class="notes">
-<li>NFDAは火葬・土葬の割合（その他は約5%で別枠）、Cremation Societyは全死亡数に対する火葬の割合です。定義がやや異なりますが、比較できる6時点（2005・2010・2015・2020・2022・2024年）で火葬率の差は1ポイント以内です。</li>
-<li>NFDAの2015年の逆転（火葬が土葬を上回った）は、報告書本文の記述によります。2020年（火葬56.1%・土葬38.8%）、2022年（59.2%・35.9%）、2024年の推計（61.9%・33.2%）は報告書の本文・表の数値です。2005・2010・2015年の値は、報告書の「U.S. Projected Cremation and Burial Rates」の図から読み取りました。</li>
+<li>NFDAは火葬・土葬の割合（その他は約5%で別枠）、Cremation Societyは全死亡数に対する火葬の割合です。定義がやや異なりますが、比較できる5時点（2005・2010・2015・2020・2022年）で火葬率の差は1ポイント以内です。</li>
+<li>NFDAの2015年の逆転（火葬が土葬を上回った）は、報告書本文の記述によります。2020年（火葬56.1%・土葬38.8%）と2022年（59.2%・35.9%）は報告書の本文・表の数値です。2005・2010・2015年の値は、報告書の「U.S. Projected Cremation and Burial Rates」の図から読み取りました。</li>
 <li>Cremation Societyの値は、各年のページと翌年ページの前年欄（改訂後の値）から取得しました。2005・2014・2017・2018・2020年は、掲載時点で暫定値（*）の年です。</li>
-<li>NFDAの実績は2022年までで、2024年は推計です。</li>
+<li>NFDAの実績は2022年までです（2024年以降は推計のため掲載していません）。</li>
 </ul>
 <p class="notes">出典：<a href="https://content.nfda.org/Portals/0/2024_NFDA_Cremation%20and%20Burial%20Report.pdf">NFDA 2024 Cremation &amp; Burial Report（PDF）</a>／<a href="https://www.cremation.org.uk/statistics">The Cremation Society of Great Britain — International Statistics</a></p>
 </div>
